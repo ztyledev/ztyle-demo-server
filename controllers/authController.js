@@ -1,4 +1,6 @@
 const asyncHandler = require('express-async-handler')
+const bcrypt = require('bcryptjs')
+const crypto = require('crypto')
 
 
 //models
@@ -6,10 +8,17 @@ const userModel = require('../models/userModel')
 const adminModel = require('../models/adminModel')
 const shopModel = require('../models/shopModel')
 const beauticianModel = require('../models/beauticianModel')
-
+const userTokenModel = require('../models/userTokenModel')
+const adminTokenModel = require('../models/adminTokenModel')
+const beauticianTokenModel = require('../models/beauticianTokenModel')
 
 // utils
 const generateToken = require('../utils/generateToken')
+const sendEmail = require('../utils/email/sendEmail')
+
+// configs
+const clientURL = process.env.CLIENT_URL
+
 
 const authHome = asyncHandler(async (req, res) => {
 
@@ -75,6 +84,117 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
 
+})
+
+const requestResetPasswordUser = asyncHandler(async (req, res) => {
+    
+    const { email } = req.body
+    
+    // check whether a user exist for email
+
+    const user = await userModel.findOne({ email });
+     if (!user) {
+        
+        res.status(404)
+        throw new Error('user does not exist for this email')
+    }
+    
+    // delete existing reset token if any
+
+    let token = await userTokenModel.findOne({ userId: user._id })
+    
+    if (token) {
+        await userTokenModel.deleteOne()
+    }
+    
+    // new reset token
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const hash = await bcrypt.hash(resetToken, 10)
+
+    const newToken = {
+        userId: user._id,
+        token: hash,
+        createdAt:Date.now()
+    }
+
+    // create new reset token , form the link and send to user email
+
+    await userTokenModel.create(newToken)
+
+    const link = `${clientURL}/page-user-reset-password?token=${resetToken}&id=${user._id}`
+
+    sendEmail(
+        user.email,
+        "Password Reset Request",
+        {
+            email: user.email,
+            link:link
+        },
+        "./template/requestResetPassword.handlebars"
+    )
+
+
+    if (link) {
+        res.status(200).json({ message: "success" })
+    }
+    
+})
+
+const resetPasswordUser = asyncHandler(async (req, res) => {
+    
+    const { userId, token, password } = (req.body);
+    
+    // access the reset token
+    let passwordResetToken = await userTokenModel.findOne({ userId })
+     
+    if (!passwordResetToken) {
+        res.status(404)
+        throw new Error('Invalid or Expired Token')
+    }
+
+    // validate the token
+
+    const isValid = await bcrypt.compare(token, passwordResetToken.token)
+    
+    if (!isValid) {
+        
+        res.status(400)
+        throw new Error('Invalid or Expired Token')
+    }
+
+    // update the user password
+
+    const hash = await bcrypt.hash(password, 10)
+    
+    await userModel.findByIdAndUpdate(userId, { password: hash })
+    
+    const updatedUser = await userModel.findById(userId)
+    
+    if (updatedUser) {
+        res.status(200).json({
+            _id: updatedUser._id,
+            email:updatedUser.email
+        })
+
+        sendEmail(
+            updatedUser.email,
+            "Password Reset Successfully",
+            {
+                email:updatedUser.email
+            },
+            "./template/resetPassword.handlebars"
+        )
+
+        await userTokenModel.deleteOne(passwordResetToken)
+
+
+    }
+    else {
+        res.status(404)
+        throw new Error('Invalid User')
+
+    }
+    
 })
 
 /// Admin Section
@@ -160,6 +280,124 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
     
 })
+
+const requestResetPasswordAdmin = asyncHandler(async (req, res) => {
+    
+    const { email } = req.body
+
+    
+    // check whether an admin user exist for email
+
+    const admin = await adminModel.findOne({ email });
+
+
+    if (!admin) {
+        
+        res.status(404)
+        throw new Error('admin user does not exist for this email')
+    }
+    
+    // delete existing reset token if any
+
+    let token = await adminTokenModel.findOne({ userId: admin._id })
+
+    
+    if (token) {
+        await adminTokenModel.deleteOne()
+    }
+    
+    // new reset token
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const hash = await bcrypt.hash(resetToken, 10)
+
+    const newToken = {
+        userId: admin._id,
+        token: hash,
+        createdAt:Date.now()
+    }
+ 
+
+    // create new reset token , form the link and send to admin user email
+
+    await adminTokenModel.create(newToken)
+
+    const link = `${clientURL}/page-admin-reset-password?token=${resetToken}&id=${admin._id}`
+
+
+    sendEmail(
+        admin.email,
+        "Password Reset Request",
+        {
+            email: admin.email,
+            link:link
+        },
+        "./template/requestResetPassword.handlebars"
+    )
+
+
+    if (link) {
+        res.status(200).json({ message: "success" })
+    }
+    
+})
+ 
+const resetPasswordAdmin = asyncHandler(async (req, res) => {
+    
+    const { userId, token, password } = (req.body);
+    
+    // access the reset token
+    let passwordResetToken = await adminTokenModel.findOne({ userId })
+     
+    if (!passwordResetToken) {
+        res.status(404)
+        throw new Error('Invalid or Expired Token')
+    }
+
+    // validate the token
+
+    const isValid = await bcrypt.compare(token, passwordResetToken.token)
+    
+    if (!isValid) {
+        
+        res.status(400)
+        throw new Error('Invalid or Expired Token')
+    }
+
+    // update the user password
+
+    const hash = await bcrypt.hash(password, 10)
+    
+    await adminModel.findByIdAndUpdate(userId, { password: hash })
+    
+    const updatedAdmin = await adminModel.findById(userId)
+    
+    if (updatedAdmin) {
+        res.status(200).json({
+            _id: updatedAdmin._id,
+            email:updatedAdmin.email
+        })
+
+        sendEmail(
+            updatedAdmin.email,
+            "Password Reset Successfully",
+            {
+                email:updatedAdmin.email
+            },
+            "./template/resetPassword.handlebars"
+        )
+
+        await adminTokenModel.deleteOne(passwordResetToken)
+
+
+    }
+    else {
+        res.status(404)
+        throw new Error('Invalid Admin User')
+
+    }
+    
+})
+
 
 // Beautician Section
 
@@ -247,13 +485,138 @@ const loginBeautician = asyncHandler(async (req, res) => {
 
 })
 
+const requestResetPasswordBeautician = asyncHandler(async (req, res) => {
+    
+    const { email } = req.body
+
+    
+    // check whether a beautician user exist for email
+
+    const beautician = await beauticianModel.findOne({ email });
+
+
+    if (!beautician) {
+        
+        res.status(404)
+        throw new Error('beautician user does not exist for this email')
+    }
+    
+    // delete existing reset token if any
+
+    let token = await beauticianTokenModel.findOne({ userId: beautician._id })
+
+    
+    if (token) {
+        await beauticianTokenModel.deleteOne()
+    }
+    
+    // new reset token
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const hash = await bcrypt.hash(resetToken, 10)
+
+    const newToken = {
+        userId: beautician._id,
+        token: hash,
+        createdAt:Date.now()
+    }
+ 
+
+    // create new reset token , form the link and send to beautician user email
+
+    await beauticianTokenModel.create(newToken)
+
+    const link = `${clientURL}/page-admin-reset-password?token=${resetToken}&id=${beautician._id}`
+
+
+    sendEmail(
+        beautician.email,
+        "Password Reset Request",
+        {
+            email: beautician.email,
+            link:link
+        },
+        "./template/requestResetPassword.handlebars"
+    )
+
+
+    if (link) {
+        res.status(200).json({ message: "success" })
+    }
+    
+})
+
+const resetPasswordBeautician = asyncHandler(async (req, res) => {
+    
+    const { userId, token, password } = (req.body);
+    
+    // access the reset token
+    let passwordResetToken = await beauticianTokenModel.findOne({ userId })
+     
+    if (!passwordResetToken) {
+        res.status(404)
+        throw new Error('Invalid or Expired Token')
+    }
+
+    // validate the token
+
+    const isValid = await bcrypt.compare(token, passwordResetToken.token)
+    
+    if (!isValid) {
+        
+        res.status(400)
+        throw new Error('Invalid or Expired Token')
+    }
+
+    // update the user password
+
+    const hash = await bcrypt.hash(password, 10)
+    
+    await beauticianModel.findByIdAndUpdate(userId, { password: hash })
+    
+    const updatedBeautician = await beauticianModel.findById(userId)
+    
+    if (updatedBeautician) {
+        res.status(200).json({
+            _id: updatedBeautician._id,
+            email:updatedBeautician.email
+        })
+
+        sendEmail(
+            updatedBeautician.email,
+            "Password Reset Successfully",
+            {
+                email:updatedBeautician.email
+            },
+            "./template/resetPassword.handlebars"
+        )
+
+        await beauticianTokenModel.deleteOne(passwordResetToken)
+
+
+    }
+    else {
+        res.status(404)
+        throw new Error('Invalid Beautician User')
+
+    }
+    
+})
+
+
+
 module.exports = {
     authHome,
     registerUser,
     loginUser,
+    requestResetPasswordUser,
+    resetPasswordUser,
     registerAdmin,
     loginAdmin,
+    requestResetPasswordAdmin,
+    resetPasswordAdmin,
     registerBeautician,
-    loginBeautician
+    loginBeautician,
+    requestResetPasswordBeautician,
+    resetPasswordBeautician
 
 }
