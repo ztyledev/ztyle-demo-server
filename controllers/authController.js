@@ -72,7 +72,7 @@ const loginUser = asyncHandler(async (req, res) => {
             _id: user._id,
             fullName: user.fullName,
             email: email,
-            token: generateToken(user._id)
+            token: generateToken(user._id, 'user')
         })
 
         
@@ -197,6 +197,27 @@ const resetPasswordUser = asyncHandler(async (req, res) => {
     
 })
 
+const deactivateUserAccount = asyncHandler(async (req, res) => {
+    
+    const { id } = req.params
+    
+    // delete the current user
+    await userModel.findByIdAndDelete(id)
+
+    
+    const deletedUser = await userModel.findById(id)
+
+    if (!deletedUser) {
+        res.status(200).json(id)
+    }
+    else {
+        res.status(400)
+        throw new Error('Delete Failed')
+    }
+
+    
+})
+
 /// Admin Section
 
 const registerAdmin = asyncHandler(async (req, res) => {
@@ -265,7 +286,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
                 designation: admin.designation,
                 mobile:admin.mobile,
                 email: email,
-                token: generateToken(admin._id)
+                token: generateToken(admin._id, 'admin')
         })
             
         }
@@ -471,7 +492,7 @@ const loginBeautician = asyncHandler(async (req, res) => {
             shopId: beautician.shopId,
             mobile:beautician.mobile,
             email: email,
-            token: generateToken(beautician._id)
+            token: generateToken(beautician._id, 'beautician')
         })
 
         
@@ -608,6 +629,7 @@ module.exports = {
     authHome,
     registerUser,
     loginUser,
+    deactivateUserAccount,
     requestResetPasswordUser,
     resetPasswordUser,
     registerAdmin,

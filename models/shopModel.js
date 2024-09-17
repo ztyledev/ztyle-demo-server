@@ -23,18 +23,21 @@ const shopSchema = new mongoose.Schema(
         location: {
             type:String
         },
+        address: String,
+        district:String,
+        state: String,
         accountId: {
             type:String
         },
         workingDays: [{
             type: String
         }],
-        OpeningTime:[{
+        OpeningTime:{
             type: String
-        }],
-        ClosingTime:[{
+        },
+        ClosingTime:{
             type: String
-        }],
+        },
         category: {
             type: String
         },
@@ -43,11 +46,21 @@ const shopSchema = new mongoose.Schema(
             default:[]
         },
         shopImage: String,
+        image1: String,
+        image2: String,
         shopCertificate: String,
         status: {
             type: String,
             enum: ['pending', 'active', 'rejected'],
             default: 'pending'
+        },
+        profileCompletion: {
+            type: String,
+            default: "0"
+        },
+        advanceProfileStatus: {
+            type: Boolean,
+            default: false
         }
         
     },

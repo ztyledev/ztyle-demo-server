@@ -1,8 +1,21 @@
 const jwt = require('jsonwebtoken')
 
-const generateToken = (id) => {
+const generateToken = (id, userType ) => {
     
-    return jwt.sign({ id }, process.env.JWT_SECRET)
+    let secret;
+
+    if (userType === 'user') {
+        secret = process.env.USER_JWT_SECRET
+    }
+    else if (userType === 'admin') {
+        secret = process.env.ADMIN_JWT_SECRET
+    }
+    else if (userType === 'beautician') {
+        secret = process.env.BEAUTICIAN_JWT_SECRET
+    }
+    
+    return jwt.sign({ id }, secret)
+    
 }
 
 module.exports = generateToken

@@ -13,6 +13,9 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware')
 
 // routes
 const authRoutes = require('./routes/authRoutes')
+const userProfileRoutes = require('./routes/userProfileRoutes')
+const beauticianProfileRoutes = require('./routes/beauticianProfileRoutes')
+const adminRoutes = require('./routes/adminRoutes')
 
 
 // connect to mongodb using mongoose
@@ -23,8 +26,13 @@ connectDb()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-
+app.use('/storage/images', express.static('storage/images'))
+app.use('/storage/certificates', express.static('storage/certificates'))
 app.use('/api/auth', authRoutes)
+app.use('/api/user-profile', userProfileRoutes)
+app.use('/api/beautician-profile', beauticianProfileRoutes)
+app.use('/api/admin', adminRoutes)
+
 
 // the landing page of server
 app.get('/', (req, res) => {
