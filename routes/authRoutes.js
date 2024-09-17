@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 // middlewares
-const { protectUser } = require('../middleware/authMiddleware')
+const { protectUser, protectAdmin, protectBeautician } = require('../middleware/authMiddleware')
 
 // controllers
 const {
@@ -16,10 +16,12 @@ const {
     loginAdmin,
     requestResetPasswordAdmin,
     resetPasswordAdmin,
+    deactivateAdminAccount,
     registerBeautician,
     loginBeautician,
     requestResetPasswordBeautician,
-    resetPasswordBeautician } = require('../controllers/authController')
+    resetPasswordBeautician,
+    deactivateBeauticianAccount } = require('../controllers/authController')
 
 router.get('/', authHome)
 router.post('/user-register', registerUser)
@@ -31,10 +33,11 @@ router.post('/admin-register', registerAdmin)
 router.post('/admin-login', loginAdmin)
 router.post('/admin-request-reset-password', requestResetPasswordAdmin)
 router.post('/admin-reset-password', resetPasswordAdmin)
+router.route('/admin-deactivate-account/:id').delete(protectAdmin, deactivateAdminAccount)
 router.post('/beautician-register', registerBeautician)
 router.post('/beautician-login', loginBeautician)
 router.post('/beautician-request-reset-password', requestResetPasswordBeautician)
 router.post('/beautician-reset-password', resetPasswordBeautician)
-
+router.route('/beautician-deactivate-account/:id').delete(protectBeautician, deactivateBeauticianAccount)
 
 module.exports =router

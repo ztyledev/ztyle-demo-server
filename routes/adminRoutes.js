@@ -35,7 +35,13 @@ const {
     updateImage2ById,
     deleteImage2ById, 
     updateshopCertificateById,
-    deleteShopCirtificateById } = require('../controllers/adminController')
+    deleteShopCirtificateById,
+    activateAdmin,
+    rejectAdmin,
+    deleteAdmin,
+    getAdmins,
+    getAdminById,
+    getPendingAdmins } = require('../controllers/adminController')
     
 // shop related routes
 router.route('/').get(protectAdmin, adminHome)
@@ -59,5 +65,13 @@ router.route('/shops/image2/:id').patch(protectAdmin, image2Upload('./storage/im
 router.route('/shops/image2/:id').delete(protectAdmin, deleteImage2ById)
 router.route('/shops/certificate/:id').patch(protectAdmin, shopCertificateUpload('./storage/certificates'), updateshopCertificateById)
 router.route('/shops/certificate/:id').delete(protectAdmin, deleteShopCirtificateById)
+
+//admin related routes
+router.route('/admins/activate/:id').patch(protectAdmin, activateAdmin)
+router.route('/admins/reject/:id').patch(protectAdmin, rejectAdmin)
+router.route('/admins/delete/:id').delete(protectAdmin, deleteAdmin)
+router.route('/admins').get(protectAdmin, getAdmins)
+router.route('/admins/:id').get(protectAdmin, getAdminById)
+router.route('/pending/admins').get(protectAdmin, getPendingAdmins)
 
 module.exports = router
