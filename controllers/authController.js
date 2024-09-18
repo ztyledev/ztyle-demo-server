@@ -643,7 +643,24 @@ const resetPasswordBeautician = asyncHandler(async (req, res) => {
 })
 
 const deactivateBeauticianAccount = asyncHandler (async(req,res) => {
-    res.json ({message : 'Deactivate Beautician Account'})
+
+    const { id } = req.params
+
+    // delete the current user
+    await beauticianModel.findByIdAndDelete(id)
+
+    
+    const deletedBeautician = await beauticianModel.findById(id)
+
+    if (!deletedBeautician) {
+        res.status(200).json(id)
+    }
+    else {
+        res.status(400)
+        throw new Error('Delete Failed')
+    }
+
+    
 })
 
 
