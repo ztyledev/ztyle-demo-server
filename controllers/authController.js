@@ -419,6 +419,11 @@ const resetPasswordAdmin = asyncHandler(async (req, res) => {
     
 })
 
+const deactivateAdminAccount = asyncHandler(async (req, res) => {
+    console.log(req.body)
+    
+    res.json ({message : 'Deactivate Admin Account'})
+})
 
 // Beautician Section
 
@@ -623,6 +628,9 @@ const resetPasswordBeautician = asyncHandler(async (req, res) => {
     
 })
 
+const deactivateBeauticianAccount = asyncHandler (async(req,res) => {
+    res.json ({message : 'Deactivate Beautician Account'})
+})
 
 
 module.exports = {
@@ -636,9 +644,11 @@ module.exports = {
     loginAdmin,
     requestResetPasswordAdmin,
     resetPasswordAdmin,
+    deactivateAdminAccount,
     registerBeautician,
     loginBeautician,
     requestResetPasswordBeautician,
-    resetPasswordBeautician
+    resetPasswordBeautician,
+    deactivateBeauticianAccount
 
 }

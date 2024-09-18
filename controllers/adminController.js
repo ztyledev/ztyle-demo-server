@@ -622,6 +622,34 @@ const deleteShopCirtificateById = asyncHandler(async (req, res) => {
 
 })
 
+//Admin section
+
+
+
+const activateAdmin = asyncHandler (async(req,res) => {
+    res.json ({message : 'Activate Admin User'})
+})
+
+const rejectAdmin = asyncHandler (async(req,res) => {
+    res.json ({message : 'Reject Admin User'})
+})
+
+const deleteAdmin =asyncHandler (async(req,res) => {
+    res.json ({message: 'Delete Admin User'})
+})
+
+const getAdmins =asyncHandler (async(req,res) => {
+    res.json ({message: 'Get Active Admins'})
+})
+
+const getAdminById =asyncHandler (async(req,res) => {
+    res.json ({message: 'Get Admin By ID'})
+})
+
+const getPendingAdmins =asyncHandler (async(req,res) => {
+    res.json ({message: 'Get Pending Admins'})
+})
+
 module.exports = {
     adminHome,
     getShops,
@@ -641,6 +669,12 @@ module.exports = {
     updateImage2ById,
     deleteImage2ById,
     updateshopCertificateById,
-    deleteShopCirtificateById
+    deleteShopCirtificateById,
+    activateAdmin,
+    rejectAdmin,
+    deleteAdmin,
+    getAdmins,
+    getAdminById,
+    getPendingAdmins
 
 }
