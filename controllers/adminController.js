@@ -7,6 +7,7 @@ const shopModel = require('../models/shopModel')
 
 // configs
 const { baseUrl } = require('../config/Constants')
+const adminModel = require('../models/adminModel')
 
 
 const adminHome = asyncHandler(async (req, res) => {
@@ -626,8 +627,32 @@ const deleteShopCirtificateById = asyncHandler(async (req, res) => {
 
 
 
-const activateAdmin = asyncHandler (async(req,res) => {
-    res.json ({message : 'Activate Admin User'})
+const activateAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const { designation, status } = req.body
+    
+    if (designation === "Director" && status === "active") {
+        // change status to active
+        const currentAdmin = { status: "active" }
+        // activate admin
+        await adminModel.findByIdAndUpdate(id, currentAdmin)
+        
+        // validate activation
+        const updatedAdmin = await adminModel.findById(id)
+        if (updatedAdmin.status === "active") {
+            res.status(200).json(updatedAdmin)
+        }
+        else {
+            res.status(400)
+            throw new Error('Activation Failed')
+        }
+
+    }
+    else {
+        res.status(400)
+        throw new Error('Not Authorized To Perform This Action. Please Contact System Admin')
+    }
+    
 })
 
 const rejectAdmin = asyncHandler (async(req,res) => {
