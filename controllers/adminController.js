@@ -656,7 +656,32 @@ const activateAdmin = asyncHandler(async (req, res) => {
 })
 
 const rejectAdmin = asyncHandler (async(req,res) => {
-    res.json ({message : 'Reject Admin User'})
+
+    const { id } = req.params
+    const { designation, status } = req.body
+    
+    if (designation === "Director" && status === "active") {
+        // change status to Rejected
+        const currentAdmin = { status: "rejected" }
+        // reject admin
+        await adminModel.findByIdAndUpdate(id, currentAdmin)
+        
+        // validate rejection
+        const updatedAdmin = await adminModel.findById(id)
+        if (updatedAdmin.status === "rejected") {
+            res.status(200).json(updatedAdmin)
+        }
+        else {
+            res.status(400)
+            throw new Error('Rejection Failed')
+        }
+
+    }
+    else {
+        res.status(400)
+        throw new Error('Not Authorized To Perform This Action. Please Contact System Admin')
+    }
+    
 })
 
 const deleteAdmin =asyncHandler (async(req,res) => {
