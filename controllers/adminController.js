@@ -712,7 +712,19 @@ const deleteAdmin =asyncHandler (async(req,res) => {
 })
 
 const getAdmins =asyncHandler (async(req,res) => {
-    res.json ({message: 'Get Active Admins'})
+
+    // check there exist any admins or not
+    const activeAdmins = await adminModel.find({status:"active"})
+
+    if (activeAdmins.length !== 0) {
+        res.status(200).json(activeAdmins)
+    }
+    else {
+        res.status(404)
+        throw new Error('No Active Admins Found')
+    }
+     
+    
 })
 
 const getAdminById =asyncHandler (async(req,res) => {
