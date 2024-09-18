@@ -744,7 +744,16 @@ const getAdminById = asyncHandler(async (req, res) => {
 })
 
 const getPendingAdmins =asyncHandler (async(req,res) => {
-    res.json ({message: 'Get Pending Admins'})
+
+    const pendingAdmins = await adminModel.find({status: 'pending'})
+    
+    if (pendingAdmins.length !==0) {
+        res.status(200).json(pendingAdmins)
+    }
+    else {
+        res.status(404)
+        throw new Error('No Pending Admins')
+    }
 })
 
 module.exports = {
