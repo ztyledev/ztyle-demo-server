@@ -727,8 +727,20 @@ const getAdmins =asyncHandler (async(req,res) => {
     
 })
 
-const getAdminById =asyncHandler (async(req,res) => {
-    res.json ({message: 'Get Admin By ID'})
+const getAdminById = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    
+    // get admin from db by id
+
+    const admin = await adminModel.findById(id)
+    if (admin) {
+        res.status(200).json(admin)
+    }
+    else {
+        res.status(404)
+        throw new Error('Admin Not Found')
+    }
+
 })
 
 const getPendingAdmins =asyncHandler (async(req,res) => {
