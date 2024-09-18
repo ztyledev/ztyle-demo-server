@@ -685,7 +685,30 @@ const rejectAdmin = asyncHandler (async(req,res) => {
 })
 
 const deleteAdmin =asyncHandler (async(req,res) => {
-    res.json ({message: 'Delete Admin User'})
+    const { id } = req.params
+    const { designation, status } = req.body
+    
+    if (designation === "Director" && status === "active") {
+
+        // delete admin
+        await adminModel.findByIdAndDelete(id)
+
+        // validate deletion
+        const deletedAdmin = await adminModel.findById(id)
+        if (!deletedAdmin) {
+            res.status(200).json(id)
+        }
+        else {
+            res.status(400)
+            throw new Error('Deletion Failed')
+        }
+
+    }
+    else {
+        res.status(400)
+        throw new Error('Not Authorized To Perform This Action. Please Contact System Admin')
+    }
+
 })
 
 const getAdmins =asyncHandler (async(req,res) => {
