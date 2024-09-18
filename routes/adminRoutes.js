@@ -60,4 +60,6 @@ router.route('/shops/image2/:id').delete(protectAdmin, deleteImage2ById)
 router.route('/shops/certificate/:id').patch(protectAdmin, shopCertificateUpload('./storage/certificates'), updateshopCertificateById)
 router.route('/shops/certificate/:id').delete(protectAdmin, deleteShopCirtificateById)
 
+
+
 module.exports = router
