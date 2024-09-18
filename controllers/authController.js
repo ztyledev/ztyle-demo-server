@@ -420,9 +420,23 @@ const resetPasswordAdmin = asyncHandler(async (req, res) => {
 })
 
 const deactivateAdminAccount = asyncHandler(async (req, res) => {
-    console.log(req.body)
     
-    res.json ({message : 'Deactivate Admin Account'})
+    const { id } = req.params
+
+    // delete the current user
+    await adminModel.findByIdAndDelete(id)
+
+    
+    const deletedAdmin = await adminModel.findById(id)
+
+    if (!deletedAdmin) {
+        res.status(200).json(id)
+    }
+    else {
+        res.status(400)
+        throw new Error('Delete Failed')
+    }
+
 })
 
 // Beautician Section
