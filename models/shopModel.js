@@ -10,7 +10,8 @@ const shopSchema = new mongoose.Schema(
             required: true
         },
         shopId: {
-            type:String
+            type: String,
+            unique:true
         },
         ownerFullName: {
             type: String,

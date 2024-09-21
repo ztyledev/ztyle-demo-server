@@ -33,7 +33,7 @@ const getShops = asyncHandler(async (req, res) => {
 const addShop = asyncHandler(async (req, res) => {
     
     const newShop = req.body
-    const { shopName, mobile } = newShop
+    const { shopName, mobile, shopId } = newShop
     
     // check for the existence of shop
     
@@ -42,6 +42,15 @@ const addShop = asyncHandler(async (req, res) => {
     if (existingShop) {
         res.status(409)
         throw new Error("Shop Already Exists")
+    }
+
+    // check the existence of shop id
+
+    const existingShopId = await shopModel.findOne({ shopId })
+    
+    if (existingShopId) {
+        res.status(409)
+        throw new Error("Shop Id Already Exists. Please Provide a Different Id")
     }
 
     // create new shop in db
