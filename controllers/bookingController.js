@@ -317,10 +317,7 @@ const deletebookingByAdminById = asyncHandler(async (req, res) => {
 
 })
 
-const deleteInvalidSlots = asyncHandler(async (req, res) => {
-    res.json({ message: "delete invalid slots : success" })
-    
-})
+
 
 
 module.exports = {
@@ -334,5 +331,5 @@ module.exports = {
     getBookingsByAdmin,
     getBookingByAdminByField,
     deletebookingByAdminById,
-    deleteInvalidSlots
+    
 }

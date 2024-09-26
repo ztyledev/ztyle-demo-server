@@ -17,6 +17,7 @@ const userProfileRoutes = require('./routes/userProfileRoutes')
 const beauticianProfileRoutes = require('./routes/beauticianProfileRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 const bookingRoutes = require('./routes/bookingRoutes')
+const paymentRoutes = require('./routes/paymentRoutes')
 
 
 // connect to mongodb using mongoose
@@ -34,6 +35,7 @@ app.use('/api/user-profile', userProfileRoutes)
 app.use('/api/beautician-profile', beauticianProfileRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/booking',bookingRoutes)
+app.use('/api/payment',paymentRoutes)
 
 
 // the landing page of server
