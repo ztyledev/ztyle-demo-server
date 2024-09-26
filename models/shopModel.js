@@ -11,7 +11,8 @@ const shopSchema = new mongoose.Schema(
         },
         shopId: {
             type: String,
-            unique:true
+            required: true,
+            unique: true
         },
         ownerFullName: {
             type: String,
@@ -33,10 +34,10 @@ const shopSchema = new mongoose.Schema(
         workingDays: [{
             type: String
         }],
-        OpeningTime:{
+        openingTime:{
             type: String
         },
-        ClosingTime:{
+        closingTime:{
             type: String
         },
         category: {

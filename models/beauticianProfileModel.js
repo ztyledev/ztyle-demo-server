@@ -36,8 +36,9 @@ const beauticianProfileSchema = new mongoose.Schema({
     achievements:[{
         type:String
     }],
-    availableHours:[{
-        type:String
+    availableSlots:[{
+        start: String,
+        end:String
     }],
     holidaySchedule:[{
         type:String

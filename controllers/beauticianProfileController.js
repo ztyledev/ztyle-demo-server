@@ -6,6 +6,7 @@ const asyncHandler = require('express-async-handler')
 const beauticianProfileModel = require('../models/beauticianProfileModel')
 const beauticianModel = require('../models/beauticianModel')
 
+
 // configs
 const { baseUrl } = require('../config/Constants')
 
@@ -28,7 +29,7 @@ const getBeauticianProfiles = asyncHandler(async (req, res) => {
     }
     else {
         res.status(404)
-        throw new Error('No User Profiles Found')
+        throw new Error('No Beautician Profiles Found')
     }
 
 

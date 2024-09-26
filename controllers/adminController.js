@@ -4,10 +4,11 @@ const asyncHandler = require('express-async-handler')
 
 // models
 const shopModel = require('../models/shopModel')
+const adminModel = require('../models/adminModel')
 
 // configs
 const { baseUrl } = require('../config/Constants')
-const adminModel = require('../models/adminModel')
+
 
 
 const adminHome = asyncHandler(async (req, res) => {
