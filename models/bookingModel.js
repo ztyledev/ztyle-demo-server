@@ -28,8 +28,8 @@ const bookingSchema = new Schema(
         service: String,
         status: {
                 type: String,
-                enum: ['pending', 'confirmed', 'canceled'],
-                default:'pending'
+            enum: ['pending', 'confirmed', 'canceled by user', 'canceled by beautician', 'completed'],
+            default: 'pending'
         }
     
     },

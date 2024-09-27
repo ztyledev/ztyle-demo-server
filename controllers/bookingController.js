@@ -40,6 +40,12 @@ const addBookingByUser = asyncHandler(async (req, res) => {
     const newBooking = req.body
     const { userId, beauticianId, shopId, date, slot } = newBooking
 
+    // back end validation
+    if (!userId || !beauticianId || !shopId || !date || !slot) {
+        res.status(404)
+        throw new Error('At Least One Field Is Empty')
+    }
+
     // existence of user
     const currentUser = await userModel.findById(userId)
     if (!currentUser) {
@@ -88,6 +94,19 @@ const addBookingByUser = asyncHandler(async (req, res) => {
             date: extractedDate,
             slots:currentBeautician.availableSlots
         })
+
+        const allSlots = await slotModel.find({ beauticianId })
+
+        let i 
+
+        for (i = 0; i < allSlots.length; i++){
+            if (allSlots[i].date < extractedDate) {
+                await slotModel.findByIdAndDelete(allSlots[i]._id)
+            }
+        }
+
+        
+
     }
 
     const specifiedSlot = dateSlotes?.slots?.find(dateSlot => dateSlot.start === slot.start && dateSlot.end === slot.end)

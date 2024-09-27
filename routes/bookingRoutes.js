@@ -18,7 +18,7 @@ const {
     updateBookingByBeauticianById,
     getBookingsByAdmin,
     getBookingByAdminByField,
-    deletebookingByAdminById } = require('../controllers/bookingController')
+    deletebookingByAdminById, } = require('../controllers/bookingController')
 
 router.route('/').get(protectUser, bookingHome)
 // associated with user

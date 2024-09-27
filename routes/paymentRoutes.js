@@ -1,8 +1,16 @@
 const express = require('express')
 const router = express.Router()
 
-const {PaymentHome} = require ('../controllers/paymentController')
+// auth middleware jwt
+const {protectUser} =require('../middleware/authMiddleware')
 
-router.get('/',PaymentHome)
+// controllers
+const {
+    PaymentHome,
+    getServicePrice } = require('../controllers/paymentController')
+
+router.route('/').all(protectUser, PaymentHome)
+router.route('/service-price/:id').get(protectUser, getServicePrice)
+
 
 module.exports = router
