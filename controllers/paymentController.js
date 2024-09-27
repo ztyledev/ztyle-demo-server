@@ -15,18 +15,36 @@ const getServicePrice = asyncHandler(async (req, res) => {
 
     //get corresponding booking
 
-    const currentBooking = await bookingModel.findById (id)
+    const currentBooking = await bookingModel.findById(id)
     
+    // booking validation
+    if (!currentBooking) {
+        res.status(400)
+        throw new Error('Booking Not Found')
+    }
+
     //extract price and service from booking
 
     const {shopId,service} = currentBooking
 
     //get corresponding shop and service
 
-    const currentShop = await shopModel.findOne ({shopId})
+    const currentShop = await shopModel.findOne({ shopId })
     
-    const currentService =  currentShop.menu ?.find (menu => menu.name === service )
+    // shop validation
+    if (!currentShop) {
+        res.status(400)
+        throw new Error('Shop Not Found')
+    }
     
+    const currentService = currentShop.menu?.find(menu => menu.name === service)
+    
+    // service validation
+    if (!currentService) {
+        res.status(400)
+        throw new Error('Service Not Found')
+    }
+
     const paymentDetails = {
         amount : currentService.price + 5,
         splitAmount : currentService.price,
