@@ -228,6 +228,25 @@ const updateShopReviewById = asyncHandler(async (req, res) => {
     
 })
 
+const getShopReviewById = asyncHandler(async (req, res) => {
+
+    const { id } = req.params
+    
+    // access review corresponds to id
+    const shopReview = await shopReviewModel.findById(id)
+
+    // check the existence of review
+
+    if (shopReview) {
+        res.status(200).json(shopReview)
+    }
+    else {
+        res.status(404)
+        throw new Error('Review Not Found')
+    }
+
+})
+
 const deleteShopReviewById = asyncHandler(async (req, res) => {
     const { id } = req.params
 
@@ -272,7 +291,25 @@ const getBeauticianReviews = asyncHandler(async (req, res) => {
         throw new Error('No Reviews Found')
     }
 
-    // res.json({ message: "get beaut review : success" })
+ 
+})
+
+const getShopReviews = asyncHandler(async (req, res) => {
+
+    const { id } = req.params
+    // access all reviews for given shop id
+    const reviews = await shopReviewModel.find({ shopId: id })
+
+    // existence of review
+    if (reviews.length !== 0) {
+        res.status(200).json(reviews)
+    }
+    else {
+        res.status(404)
+        throw new Error('No Reviews Found')
+    }
+
+
 })
 
 
@@ -285,6 +322,8 @@ module.exports = {
     deleteBeauticianReviewById,
     addShopReview,
     updateShopReviewById,
+    getShopReviewById,
     deleteShopReviewById,
-    getBeauticianReviews
+    getBeauticianReviews,
+    getShopReviews
 }
