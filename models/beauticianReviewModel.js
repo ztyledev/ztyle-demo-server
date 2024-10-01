@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const reviewSchema = new Schema ({
+const beauticianReviewSchema = new Schema ({
 
     userId: {
         type: Schema.Types.ObjectId,
@@ -19,7 +19,6 @@ const reviewSchema = new Schema ({
         required:true
     },
     reviewText: String
-    
 
 },
 {
@@ -28,8 +27,8 @@ const reviewSchema = new Schema ({
 
 )
 
-const reviewModel = new mongoose.model('review', reviewSchema)
-module.exports = reviewModel
+const beauticianReviewModel = new mongoose.model('beauticianReview', beauticianReviewSchema)
+module.exports = beauticianReviewModel
 
 
 

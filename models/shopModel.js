@@ -51,6 +51,7 @@ const shopSchema = new mongoose.Schema(
         image1: String,
         image2: String,
         shopCertificate: String,
+        clientRating: Number,
         status: {
             type: String,
             enum: ['pending', 'active', 'rejected'],
