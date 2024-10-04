@@ -19,7 +19,7 @@ const {
 
 router.route('/').all(protectUser, PaymentHome)
 // user access
-router.route('/service-price/:id').get(protectUser, getServicePrice)
+router.route('/service-price/').post(protectUser, getServicePrice)
 router.route('/orders').post( addOrder)
 router.route('/verify').post(verifyOrder)
 router.route('/user-payments/:id').get(protectUser, getPaymentById)

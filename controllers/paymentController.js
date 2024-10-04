@@ -7,14 +7,19 @@ const crypto = require('crypto')
 const paymentModel = require('../models/paymentModel')
 const bookingModel = require ('../models/bookingModel')
 const shopModel = require ('../models/shopModel')
-
+const offerModel = require('../models/offerModel')
 
 const PaymentHome = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "payment routes : home page" })
 })
 
 const getServicePrice = asyncHandler(async (req, res) => {
-    const {id} = req.params
+    const { bookingId, offerCode } = req.body
+    // validate back end
+    if (!bookingId) {
+        res.status(404)
+        throw new Error('Booking Id Field Is Empty')
+    }
 
     //get corresponding booking
 
@@ -51,6 +56,21 @@ const getServicePrice = asyncHandler(async (req, res) => {
     if (currentBooking.status !== "confirmed") {
         res.status(400)
         throw new Error('Cannot Make Payment Since Your Booking Is Not Confirmed')
+    }
+
+
+    let netPrice;
+    // check whether offer is applicable to the price
+
+    if (offerCode) {
+        const offer = await offerModel.findOne({ offerCode })
+        
+        if (!offer) {
+            res.status(404)
+            throw new Error('No Offer Found For The Code')
+        }
+        
+        
     }
 
     const paymentDetails = {

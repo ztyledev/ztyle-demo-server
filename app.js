@@ -19,6 +19,7 @@ const adminRoutes = require('./routes/adminRoutes')
 const bookingRoutes = require('./routes/bookingRoutes')
 const paymentRoutes = require('./routes/paymentRoutes')
 const reviewRoutes = require('./routes/reviewRoutes')
+const offerRoutes = require('./routes/offerRoutes')
 
 
 // connect to mongodb using mongoose
@@ -38,6 +39,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/booking',bookingRoutes)
 app.use('/api/payment', paymentRoutes)
 app.use('/api/review', reviewRoutes)
+app.use('/api/offer', offerRoutes)
 
 
 
