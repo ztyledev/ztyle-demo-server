@@ -8,6 +8,8 @@ const paymentModel = require('../models/paymentModel')
 const bookingModel = require ('../models/bookingModel')
 const shopModel = require ('../models/shopModel')
 const offerModel = require('../models/offerModel')
+const offerRedemptionModel = require('../models/offerRedemptionModel')
+
 
 const PaymentHome = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "payment routes : home page" })
@@ -22,8 +24,7 @@ const getServicePrice = asyncHandler(async (req, res) => {
     }
 
     //get corresponding booking
-
-    const currentBooking = await bookingModel.findById(id)
+    const currentBooking = await bookingModel.findById(bookingId)
     
     // booking validation
     if (!currentBooking) {
@@ -59,23 +60,48 @@ const getServicePrice = asyncHandler(async (req, res) => {
     }
 
 
-    let netPrice;
+    let netPrice = currentService.price;
     // check whether offer is applicable to the price
 
     if (offerCode) {
         const offer = await offerModel.findOne({ offerCode })
         
+        // existence of offer
         if (!offer) {
             res.status(404)
             throw new Error('No Offer Found For The Code')
         }
+
+        // access the offer status
+        if (offer.status !== "active") {
+            res.status(400)
+            throw new Error('This Offer Is Not Active Now')
+        }
+        
+        // check the offer redemption by user
+        const redemption = await offerRedemptionModel.findOne({ userId: currentBooking.userId, offerId: offer._id })
+        
+        if (redemption) {
+            if (redemption.status === "used") {
+                
+                res.status(400)
+                throw new Error('Offer Is Already redeamed')
+            }
+        }
+
+        // modify the net price
+        netPrice = currentService.price - currentService.price * offer.discountPercentage / 100
+        
+        // update the redemption status
+
+        await offerRedemptionModel.create({ userId: currentBooking.userId, offerId: offer._id, status: "used" })
         
         
     }
 
     const paymentDetails = {
-        amount : currentService.price + 5,
-        splitAmount : currentService.price,
+        amount : netPrice + 5,
+        splitAmount: netPrice,
         accountId : currentShop.accountId
     }
     
