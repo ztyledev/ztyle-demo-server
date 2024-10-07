@@ -96,7 +96,6 @@ const getServicePrice = asyncHandler(async (req, res) => {
 
         await offerRedemptionModel.create({ userId: currentBooking.userId, offerId: offer._id, status: "used" })
         
-        
     }
 
     const paymentDetails = {
