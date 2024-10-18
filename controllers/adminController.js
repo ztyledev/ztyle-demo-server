@@ -464,7 +464,7 @@ const deleteImage1ById = asyncHandler(async (req, res) => {
     
     // validate delete
     const picDeletedShop = await shopModel.findById(id)
-    if (!picDeletedShop.shopImage) {
+    if (!picDeletedShop.image1) {
         res.status(200).json(picDeletedShop)
 
     }
@@ -543,7 +543,7 @@ const deleteImage2ById = asyncHandler(async (req, res) => {
     
     // validate delete
     const picDeletedShop = await shopModel.findById(id)
-    if (!picDeletedShop.shopImage) {
+    if (!picDeletedShop.image2) {
         res.status(200).json(picDeletedShop)
 
     }
@@ -622,13 +622,13 @@ const deleteShopCirtificateById = asyncHandler(async (req, res) => {
     
     // validate delete
     const picDeletedShop = await shopModel.findById(id)
-    if (!picDeletedShop.shopImage) {
+    if (!picDeletedShop.shopCertificate) {
         res.status(200).json(picDeletedShop)
 
     }
     else {
         res.status(400)
-        throw new Error('Delete image1 failed')
+        throw new Error('Delete shop certificate failed')
     }
 
 })
@@ -641,7 +641,7 @@ const activateAdmin = asyncHandler(async (req, res) => {
     const { id } = req.params
     const { designation, status } = req.body
     
-    if (designation === "Director" && status === "active") {
+    if (designation === "director" && status === "active") {
         // change status to active
         const currentAdmin = { status: "active" }
         // activate admin
