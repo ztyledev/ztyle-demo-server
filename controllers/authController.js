@@ -249,7 +249,6 @@ const registerAdmin = asyncHandler(async (req, res) => {
             designation: admin.designation,
             mobile:admin.mobile,
             email: admin.email,
-            status:admin.status
         })
 
     }
@@ -287,6 +286,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
                 designation: admin.designation,
                 mobile:admin.mobile,
                 email: email,
+                status:admin.status,
                 token: generateToken(admin._id, 'admin')
         })
             
