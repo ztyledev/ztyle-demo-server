@@ -248,7 +248,8 @@ const registerAdmin = asyncHandler(async (req, res) => {
             fullName: admin.fullName,
             designation: admin.designation,
             mobile:admin.mobile,
-            email:admin.email
+            email: admin.email,
+            status:admin.status
         })
 
     }
