@@ -37,11 +37,17 @@ const {
     updateshopCertificateById,
     deleteShopCirtificateById,
     activateAdmin,
+    deactivateAdmin,
     rejectAdmin,
     deleteAdmin,
     getAdmins,
     getAdminById,
-    getPendingAdmins } = require('../controllers/adminController')
+    getPendingAdmins,
+    getBeauticiansByShopId,
+    getBeauticianById,
+    editBeauticianById,
+    deleteBeauticianById
+} = require('../controllers/adminController')
     
 // shop related routes
 router.route('/').get(protectAdmin, adminHome)
@@ -67,14 +73,19 @@ router.route('/shops/certificate/:id').patch(protectAdmin, shopCertificateUpload
 router.route('/shops/certificate/:id').delete(protectAdmin, deleteShopCirtificateById)
 
 
-
 //admin related routes
 router.route('/admins/activate/:id').patch(protectAdmin, activateAdmin)
+router.route('/admins/deactivate/:id').patch(protectAdmin, deactivateAdmin)
 router.route('/admins/reject/:id').patch(protectAdmin, rejectAdmin)
-router.route('/admins/delete/:id').delete(protectAdmin, deleteAdmin)
+router.route('/admins/delete/:id').patch(protectAdmin, deleteAdmin)
 router.route('/admins').get(protectAdmin, getAdmins)
 router.route('/admins/:id').get(protectAdmin, getAdminById)
 router.route('/pending/admins').get(protectAdmin, getPendingAdmins)
 
+// beautician related routes
+router.route('/beauticians/shop-id').post(protectAdmin, getBeauticiansByShopId)
+router.route('/beauticians/:id').get(protectAdmin, getBeauticianById)
+router.route('/beauticians/:id').patch(protectAdmin, editBeauticianById)
+router.route('/beauticians/:id').delete(protectAdmin, deleteBeauticianById)
 
 module.exports = router

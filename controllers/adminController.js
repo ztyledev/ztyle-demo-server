@@ -5,6 +5,7 @@ const asyncHandler = require('express-async-handler')
 // models
 const shopModel = require('../models/shopModel')
 const adminModel = require('../models/adminModel')
+const beauticianProfileModel = require('../models/beauticianProfileModel')
 
 // configs
 const { baseUrl } = require('../config/Constants')
@@ -30,6 +31,8 @@ const getShops = asyncHandler(async (req, res) => {
     }
 
 })
+
+/// shop section
 
 const addShop = asyncHandler(async (req, res) => {
     
@@ -633,8 +636,7 @@ const deleteShopCirtificateById = asyncHandler(async (req, res) => {
 
 })
 
-//Admin section
-
+/// Admin section
 
 
 const activateAdmin = asyncHandler(async (req, res) => {
@@ -665,12 +667,41 @@ const activateAdmin = asyncHandler(async (req, res) => {
     
 })
 
+const deactivateAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const { designation, status } = req.body
+    
+    if (designation === "director" && status === "active") {
+        // change status to pending
+        const currentAdmin = { status: "pending" }
+        // deactivate admin
+        await adminModel.findByIdAndUpdate(id, currentAdmin)
+        
+        // validate activation
+        const updatedAdmin = await adminModel.findById(id)
+        if (updatedAdmin.status === "pending") {
+            res.status(200).json(updatedAdmin)
+        }
+        else {
+            res.status(400)
+            throw new Error('Activation Failed')
+        }
+
+    }
+    else {
+        res.status(400)
+        throw new Error('Not Authorized To Perform This Action. Please Contact System Admin')
+    }
+    
+})
+
+
 const rejectAdmin = asyncHandler (async(req,res) => {
 
     const { id } = req.params
     const { designation, status } = req.body
     
-    if (designation === "Director" && status === "active") {
+    if (designation === "director" && status === "active") {
         // change status to Rejected
         const currentAdmin = { status: "rejected" }
         // reject admin
@@ -698,7 +729,7 @@ const deleteAdmin =asyncHandler (async(req,res) => {
     const { id } = req.params
     const { designation, status } = req.body
     
-    if (designation === "Director" && status === "active") {
+    if (designation === "director" && status === "active") {
 
         // delete admin
         await adminModel.findByIdAndDelete(id)
@@ -766,6 +797,98 @@ const getPendingAdmins =asyncHandler (async(req,res) => {
     }
 })
 
+/// Beautician
+
+const getBeauticiansByShopId = asyncHandler(async (req, res) => {
+    const { shopId } = req.body;
+    // validate back end
+    if (!shopId) {
+        res.status(404)
+        throw new Error("Enter Shop Id ")
+    }
+
+    const beauticians = await beauticianProfileModel.find({ shopId });
+    if (beauticians.length !== 0) {
+            res.status(200).json(beauticians)    
+    }
+    
+    else {
+        res.status(404)
+        throw new Error('No Beauticians For This Shop')
+    }
+    
+})
+
+const getBeauticianById = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    
+    // get profile from db
+    const beautician = await beauticianProfileModel.findById(id)
+    
+    if (beautician) {
+        res.status(200).json(beautician)
+    }
+    else {
+        res.status(404)
+        throw new Error('Beautician Not Found')
+    }
+
+    
+})
+
+const editBeauticianById = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const beautician = req.body
+    
+
+
+    // update the current beautician from req.body
+    
+    await beauticianProfileModel.findByIdAndUpdate(id, beautician)
+    
+    // access the updated beautician
+    const updatedBeautician = await beauticianProfileModel.findById(id)
+
+    // check the updation status and return the same
+
+    if (updatedBeautician) {
+        res.status(200).json(updatedBeautician)
+    }
+    else {
+        res.status(404)
+        throw new Error('Beautician Does Not Exists')
+    }
+})
+
+const deleteBeauticianById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+     // remove existsing profile pic
+    const currentProfile = await beauticianProfileModel.findById(id)
+    const currentProfilePic = currentProfile.profilePic
+    
+    if (currentProfilePic) {
+        
+        const currentProfilePicName = currentProfilePic.match(/\/([^\/?#]+)[^\/]*$/)
+        const currentProfilePicPath = path.resolve(__dirname, '../storage/images', currentProfilePicName[1])
+        fs.unlinkSync(currentProfilePicPath)
+    }
+
+    // delete beautician
+        await beauticianProfileModel.findByIdAndDelete(id)
+
+        // validate deletion
+        const deletedBeautician = await beauticianProfileModel.findById(id)
+        if (!deletedBeautician) {
+            res.status(200).json(id)
+        }
+        else {
+            res.status(400)
+            throw new Error('Deletion Failed')
+        }
+    
+})
+
 module.exports = {
     adminHome,
     getShops,
@@ -787,10 +910,16 @@ module.exports = {
     updateshopCertificateById,
     deleteShopCirtificateById,
     activateAdmin,
+    deactivateAdmin,
     rejectAdmin,
     deleteAdmin,
     getAdmins,
     getAdminById,
-    getPendingAdmins
+    getPendingAdmins,
+    getBeauticiansByShopId,
+    getBeauticianById,
+    editBeauticianById,
+    deleteBeauticianById
+
 
 }

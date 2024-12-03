@@ -41,11 +41,19 @@ const beauticianProfileSchema = new mongoose.Schema({
         end:String
     }],
     holidaySchedule:[{
-        type:String
+        name: String,
+        checked: {
+            type: Boolean,
+            default:false
+        }
     }],
     profilePic: String,
     languagesSpoken:[{
-        type:String
+        name: String,
+        checked: {
+            type: Boolean,
+            default:false
+        }
     }],
     notes: String,
     status: {

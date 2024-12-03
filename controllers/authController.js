@@ -440,7 +440,7 @@ const deactivateAdminAccount = asyncHandler(async (req, res) => {
 
 })
 
-// Beautician Section
+/// Beautician Section
 
 const registerBeautician = asyncHandler(async (req, res) => {
 
@@ -566,7 +566,7 @@ const requestResetPasswordBeautician = asyncHandler(async (req, res) => {
 
     await beauticianTokenModel.create(newToken)
 
-    const link = `${clientURL}/page-admin-reset-password?token=${resetToken}&id=${beautician._id}`
+    const link = `${clientURL}/page-beautician-reset-password?token=${resetToken}&id=${beautician._id}`
 
 
     sendEmail(
@@ -664,6 +664,23 @@ const deactivateBeauticianAccount = asyncHandler (async(req,res) => {
     
 })
 
+const getShopIds = asyncHandler(async (req, res) => {
+    
+    const shops = await shopModel.find();
+    const shopIds = shops.map(shop => {
+        return shop.shopId
+    })
+
+    if (shopIds.length !== 0) {
+        res.status(200).json(shopIds)
+    }
+    else {
+        res.status(404)
+        throw new Error('No Active Shops Found')
+    }
+
+})
+
 
 module.exports = {
     authHome,
@@ -681,6 +698,7 @@ module.exports = {
     loginBeautician,
     requestResetPasswordBeautician,
     resetPasswordBeautician,
-    deactivateBeauticianAccount
+    deactivateBeauticianAccount,
+    getShopIds
 
 }

@@ -32,8 +32,13 @@ const shopSchema = new mongoose.Schema(
             type:String
         },
         workingDays: [{
-            type: String
+            name: String,
+            checked: {
+                type: Boolean,
+                default:false
+            }
         }],
+        
         openingTime:{
             type: String
         },
