@@ -21,6 +21,7 @@ const paymentRoutes = require('./routes/paymentRoutes')
 const reviewRoutes = require('./routes/reviewRoutes')
 const offerRoutes = require('./routes/offerRoutes')
 const userRoutes = require('./routes/userRoutes')
+const notificationRoutes = require('./routes/notificationRoutes')
 
 
 // connect to mongodb using mongoose
@@ -42,7 +43,7 @@ app.use('/api/payment', paymentRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/offer', offerRoutes)
 app.use('/api/user', userRoutes)
-
+app.use('/api/notification', notificationRoutes)
 
 
 // the landing page of server

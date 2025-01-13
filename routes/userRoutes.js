@@ -10,16 +10,21 @@ const {
     userHome,
     getShops,
     getShopById,
-    getBeauticiansByShopId } = require('../controllers/userController')
+    getBeauticiansByShopId,
+    getBeauticianById,
+    getShopMenu } = require('../controllers/userController')
 
 router.route('/').get(protectUser, userHome)
 
 // shop routes
 router.route('/shops').get(protectUser, getShops)
 router.route('/shops/:id').get(protectUser, getShopById)
+router.route('/menu/shops').post(protectUser, getShopMenu)
+
 
 // beautician routes
 router.route('/beauticians/shop-id').post(protectUser, getBeauticiansByShopId)
+router.route('/beauticians/:id').get(protectUser, getBeauticianById)
 
 
 module.exports = router

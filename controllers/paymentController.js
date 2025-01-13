@@ -60,7 +60,7 @@ const getServicePrice = asyncHandler(async (req, res) => {
     }
 
 
-    let netPrice = currentService.price;
+    let netPrice = Number(currentService.price);
     // check whether offer is applicable to the price
 
     if (offerCode) {
@@ -90,7 +90,7 @@ const getServicePrice = asyncHandler(async (req, res) => {
         }
 
         // modify the net price
-        netPrice = currentService.price - currentService.price * offer.discountPercentage / 100
+        netPrice = Number(currentService.price) - Number(currentService.price) * offer.discountPercentage / 100
         
         // update the redemption status
 
@@ -120,7 +120,7 @@ const addOrder = asyncHandler(async (req, res) => {
     const { amount, splitAmount, accountId } = req.body
     
     // validate the fields
-    if (!amount || !splitAmount || !splitAmount || !accountId) {
+    if (!amount || !splitAmount || !accountId) {
         res.status(404)
         throw new Error('At Least One Field Is Empty')
 
@@ -143,8 +143,8 @@ const addOrder = asyncHandler(async (req, res) => {
                 amount: splitAmount * 100,
                 currency: 'INR',
                 notes: {
-                    branch: 'Ole',
-                    name:'Ole Group'
+                    type: 'Split payment',
+                    account:'Shop Account'
                 },
                 on_hold:0
             }

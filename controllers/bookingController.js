@@ -19,11 +19,76 @@ const bookingHome = asyncHandler(async (req, res) => {
 
 // User Section
 
+const getSlots = asyncHandler(async (req, res) => {
+    const { beauticianId, date } = req.body
+    
+    // back end validation
+    if (!beauticianId || !date) {
+        res.status(404)
+        throw new Error('At Least One Field Is Empty')
+    }
+
+    // existence of beautician
+    const currentBeautician = await beauticianProfileModel.findById(beauticianId)
+    if (!currentBeautician) {
+        res.status(404)
+        throw new Error('Beautician Profile Does not exist')
+    }
+    
+    // check whether the given date is valid for booking
+    const dateStatus = dateValidator(date)
+
+    if (!dateStatus) {
+        res.status(400)
+        throw new Error(`The Date Selected is Past`)
+    }
+
+    // remove time from date
+    const extractedDate = dateExtractor(new Date(date))
+    
+    // access the slots for specified beautician and date
+    let dateSlotes = await slotModel.findOne({ beauticianId, date: extractedDate })
+    
+    // if slot is not created for specific day, create the same 
+    if (!dateSlotes) {
+        dateSlotes = await slotModel.create({
+            beauticianId,
+            date: extractedDate,
+            slots:currentBeautician.availableSlots
+        })
+
+        const allSlots = await slotModel.find({ beauticianId })
+
+        // remove past slots
+        const extractedToday = dateExtractor(new Date())
+
+        let i 
+
+        for (i = 0; i < allSlots.length; i++){
+            if (allSlots[i].date < extractedToday) {
+                await slotModel.findByIdAndDelete(allSlots[i]._id)
+            }
+        }
+
+        
+
+    }
+
+    if (dateSlotes) {
+        res.status(200).json(dateSlotes)
+    }
+    else {
+        res.status(400)
+        throw new Error('Invalid Slotes')
+    }
+    
+})
+
 const getBookingsByUser = asyncHandler(async (req, res) => {
     const { userId } = req.body
     // search bookings in db with given userId 
-    const userBookings = await bookingModel.find({ userId })
-    
+    const userBookings = await bookingModel.find({ userId }).sort({ createdAt: 'desc' })
+
     if (userBookings.length !== 0) {
         res.status(200).json(userBookings)
     }
@@ -38,10 +103,11 @@ const getBookingsByUser = asyncHandler(async (req, res) => {
 const addBookingByUser = asyncHandler(async (req, res) => {
     
     const newBooking = req.body
-    const { userId, beauticianId, shopId, date, slot } = newBooking
+    const { userId, beauticianId, shopId, date, slot,service } = newBooking
 
     // back end validation
-    if (!userId || !beauticianId || !shopId || !date || !slot) {
+    if (!userId || !beauticianId || !shopId || !date || !slot || !service) {
+        
         res.status(404)
         throw new Error('At Least One Field Is Empty')
     }
@@ -97,10 +163,13 @@ const addBookingByUser = asyncHandler(async (req, res) => {
 
         const allSlots = await slotModel.find({ beauticianId })
 
+        // remove past slots
+        const extractedToday = dateExtractor(new Date())
+
         let i 
 
         for (i = 0; i < allSlots.length; i++){
-            if (allSlots[i].date < extractedDate) {
+            if (allSlots[i].date < extractedToday) {
                 await slotModel.findByIdAndDelete(allSlots[i]._id)
             }
         }
@@ -153,17 +222,42 @@ const getBookingById = asyncHandler(async (req, res) => {
     
     // access the booking with specified id
     const booking = await bookingModel.findById(id)
-    if (booking) {
-        res.status(200).json(booking)
+
+    // check the existance of booking
+    if (!booking) {
+        res.status(404);
+        throw new Error('Booking Not Found');
+    }
+    
+    const { shopId, beauticianId,userId } = booking
+
+    const shop = await shopModel.findOne({ shopId })
+    const beautician = await beauticianProfileModel.findById(beauticianId);
+    const user = await userModel.findById(userId);
+
+    
+    // Handle cases where shop or beautician may not exist
+    const shopName = shop?.shopName || 'Unknown Shop';
+    const beauticianName = beautician?.fullName || 'Unknown Beautician';
+    const userName = user?.fullName || 'Unknown User';
+
+
+    const bookingDetails = { ...booking.toObject(), shopName, beauticianName, userName }
+    
+    
+    if (bookingDetails) {
+        res.status(200).json(bookingDetails)
     }
     else {
         res.status(404)
         throw new Error('Booking Not Found')
     }
+
 })
 
-const cancelBookingByUserById = asyncHandler(async (req, res) => {
+const updateBookingByUserById = asyncHandler(async (req, res) => {
     const { id } = req.params
+    const { action } = req.body
     const booking = await bookingModel.findById(id)
     if (!booking) {
         res.status(404)
@@ -192,25 +286,49 @@ const cancelBookingByUserById = asyncHandler(async (req, res) => {
         res.status(404)
         throw new Error('There is no slot associated with given booking')
     }
-     // confirm the booking of specified slot for specified beautician and date
-    dateSlotes.slots?.map((dateSlote) => {
+    // confirm the booking of specified slot for specified beautician and date
+    
+    if (action === "canceled by user")
+    {
+        dateSlotes.slots?.map((dateSlote) => {
         if (dateSlote.start === slot.start && dateSlote.end === slot.end) {
             dateSlote.status = 'canceled'
-        }
-        
-    })
+            }
+            
+        })
 
-     // update the slot data to acknowledge the given booking cancellation
-    await slotModel.findByIdAndUpdate(dateSlotes._id,dateSlotes)
+        // update the slot data to acknowledge the given booking cancellation
+        await slotModel.findByIdAndUpdate(dateSlotes._id, dateSlotes)
+    }
+   
+
     
     // update the booking
-    await bookingModel.findByIdAndUpdate(id, { status: 'canceled by user' })
-    
+    await bookingModel.findByIdAndUpdate(id, { status: action })
+
     // validate the update
 
     const updatedBooking = await bookingModel.findById(id)
-    if (updatedBooking) {
-        res.status(200).json(updatedBooking)
+
+
+    // add additional details 
+    const { shopId, userId } = updatedBooking
+    
+    const shop = await shopModel.findOne({ shopId })
+    const beautician = await beauticianProfileModel.findById(beauticianId);
+    const user = await userModel.findById(userId);
+
+    
+    // Handle cases where shop or beautician may not exist
+    const shopName = shop?.shopName || 'Unknown Shop';
+    const beauticianName = beautician?.fullName || 'Unknown Beautician';
+    const userName = user?.fullName || 'Unknown User';
+
+
+    const bookingDetails = { ...updatedBooking.toObject(), shopName, beauticianName, userName }
+
+    if (bookingDetails) {
+        res.status(200).json(bookingDetails)
     }
     else {
         res.status(400)
@@ -224,7 +342,7 @@ const getBookingsByBeautician = asyncHandler(async (req, res) => {
 
     const { beauticianId } = req.body
     // search bookings in db with given beauticianId 
-    const beauticianBookings = await bookingModel.find({ beauticianId })
+    const beauticianBookings = await bookingModel.find({ beauticianId }).sort({ createdAt: 'desc' })
 
     if (beauticianBookings.length !== 0) {
         res.status(200).json(beauticianBookings)
@@ -269,8 +387,25 @@ const updateBookingByBeauticianById = asyncHandler(async (req, res) => {
     await bookingModel.findByIdAndUpdate(id, currentBooking)
     // validate update
     const updatedBooking = await bookingModel.findById(id)
-    if (updatedBooking) {
-        res.status(200).json(updatedBooking)
+
+     // add additional details 
+    const { shopId, userId,beauticianId } = updatedBooking
+    
+    const shop = await shopModel.findOne({ shopId })
+    const beautician = await beauticianProfileModel.findById(beauticianId);
+    const user = await userModel.findById(userId);
+
+    
+    // Handle cases where shop or beautician may not exist
+    const shopName = shop?.shopName || 'Unknown Shop';
+    const beauticianName = beautician?.fullName || 'Unknown Beautician';
+    const userName = user?.fullName || 'Unknown User';
+
+
+    const bookingDetails = { ...updatedBooking.toObject(), shopName, beauticianName, userName }
+
+    if (bookingDetails) {
+        res.status(200).json(bookingDetails)
     }
     else {
         res.status(400)
@@ -341,10 +476,11 @@ const deletebookingByAdminById = asyncHandler(async (req, res) => {
 
 module.exports = {
     bookingHome,
+    getSlots,
     getBookingsByUser,
     addBookingByUser,
     getBookingById,
-    cancelBookingByUserById,
+    updateBookingByUserById,
     getBookingsByBeautician,
     updateBookingByBeauticianById,
     getBookingsByAdmin,

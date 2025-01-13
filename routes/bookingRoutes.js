@@ -10,10 +10,11 @@ const {
 // controllers
 const {
     bookingHome,
+    getSlots,
     getBookingsByUser,
     addBookingByUser,
     getBookingById,
-    cancelBookingByUserById,
+    updateBookingByUserById,
     getBookingsByBeautician,
     updateBookingByBeauticianById,
     getBookingsByAdmin,
@@ -22,10 +23,11 @@ const {
 
 router.route('/').get(protectUser, bookingHome)
 // associated with user
+router.route('/user-slots').post(protectUser, getSlots)
 router.route('/user-bookings/my-bookings').post(protectUser,getBookingsByUser)
 router.route('/user-bookings').post(protectUser, addBookingByUser)
 router.route('/user-bookings/:id').get(protectUser, getBookingById)
-router.route('/user-bookings/:id').patch(protectUser,cancelBookingByUserById)
+router.route('/user-bookings/:id').patch(protectUser,updateBookingByUserById)
 // associated with beautician
 router.route('/beautician-bookings/my-bookings').post(protectBeautician,getBookingsByBeautician)
 router.route('/beautician-bookings/:id').get(protectBeautician,getBookingById)
