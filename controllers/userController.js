@@ -46,7 +46,7 @@ const getBeauticiansByShopId = asyncHandler(async (req, res) => {
     }
 
     // data base access
-    const beauticians = await beauticianProfileModel.find({ shopId })
+    const beauticians = await beauticianProfileModel.find({ shopId, status: "active" })
     
     // check existance of beautician
     if (beauticians.length !== 0) {

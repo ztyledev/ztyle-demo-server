@@ -99,7 +99,7 @@ const getServicePrice = asyncHandler(async (req, res) => {
     }
 
     const paymentDetails = {
-        amount : netPrice + 5,
+        amount : netPrice + 1,
         splitAmount: netPrice,
         accountId : currentShop.accountId
     }

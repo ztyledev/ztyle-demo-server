@@ -57,15 +57,24 @@ const getOfferById = asyncHandler(async (req, res) => {
     const { id } = req.params
     // access offer from db by id
     const offer = await offerModel.findById(id)
-    // existence of offer
-    if (offer) {
-        res.status(200).json(offer)
+    if (offer.endDate < new Date())
+    {
+        const offerData = { status: 'inactive' }
+        await offerModel.findByIdAndUpdate(id, offerData)
+        
+    }
+    
+    const updatedOffer = await offerModel.findById(id)
+
+    // existence of updated offer
+    if (updatedOffer) {
+        res.status(200).json(updatedOffer)
     }
     else {
         res.status(404)
         throw new Error("Offer Not Found")
     }
-    // res.status(900).json({ message: "get offer by id : success" })
+    
     
 })
 

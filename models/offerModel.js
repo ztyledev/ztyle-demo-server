@@ -26,7 +26,7 @@ const offerSchema = new Schema(
             type: Number,
             required:true
         },
-         status: {
+        status: {
             type: String,
              enum: ['active', 'inactive'],
              default: 'active'

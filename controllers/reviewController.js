@@ -100,50 +100,34 @@ const updateBeauticianReviewById = asyncHandler(async (req, res) => {
     
 })
 
-const getBeauticianReviewById = asyncHandler(async (req, res) => {
-
-    const { id } = req.params
+const getMyBeauticianReview = asyncHandler(async (req, res) => {
+    const { userId, beauticianId } = req.body
     
-    // access review corresponds to id
-    const beauticianReview = await beauticianReviewModel.findById(id)
+    // existence of user
+    const currentUser = await userModel.findById(userId)
+    if (!currentUser) {
+        res.status(404)
+        throw new Error('User Does not exist')
+    }
 
-    // check the existence of review
+    // existence of beautician
+    const currentBeautician = await beauticianProfileModel.findById(beauticianId)
+    if (!currentBeautician) {
+        res.status(404)
+        throw new Error('Beautician Does not exist')
+    }
 
-    if (beauticianReview) {
-        res.status(200).json(beauticianReview)
+    // access the review
+    const myReview = await beauticianReviewModel.findOne({ userId, beauticianId })
+    
+    if (myReview) {
+        res.status(200).json(myReview)
     }
     else {
         res.status(404)
-        throw new Error('Review Not Found')
+        throw new Error("No Review Found")
     }
-
-})
-
-const deleteBeauticianReviewById = asyncHandler(async (req, res) => {
-    const { id } = req.params
-
-    // access the beautician id of review
-    const { beauticianId } = await beauticianReviewModel.findById(id)
-    // update the beautician review
-    const reviewStatus = netReview("beautician", beauticianId)
-    if (!reviewStatus) {
-        res.status(400)
-        throw new Error('Review Update Failed')
-    }
-
-    // delete review from db
-    await beauticianReviewModel.findByIdAndDelete(id)
-
-    // validate the delete
-    const deletedBeauticianReview = await beauticianReviewModel.findById(id)
-    if (!deletedBeauticianReview) {
-        res.status(200).json(id)
-    }
-    else {
-        res.status(400)
-        throw new Error('Delete Failed')
-    }
-
+    
 })
 
 // Shop Reviews
@@ -163,7 +147,7 @@ const addShopReview = asyncHandler(async (req, res) => {
         throw new Error('User Does not exist')
     }
 
-    // existence of beautician
+    // existence of shop
     const currentShop = await shopModel.findOne({ shopId })
     if (!currentShop) {
         res.status(404)
@@ -228,50 +212,35 @@ const updateShopReviewById = asyncHandler(async (req, res) => {
     
 })
 
-const getShopReviewById = asyncHandler(async (req, res) => {
-
-    const { id } = req.params
+const getMyShopreview = asyncHandler(async (req, res) => {
+    const { userId, shopId } = req.body
     
-    // access review corresponds to id
-    const shopReview = await shopReviewModel.findById(id)
+    // existence of user
+    const currentUser = await userModel.findById(userId)
+    if (!currentUser) {
+        res.status(404)
+        throw new Error('User Does not exist')
+    }
 
-    // check the existence of review
+    // existence of shop
+    const currentShop = await shopModel.findOne({ shopId })
+    if (!currentShop) {
+        res.status(404)
+        throw new Error('Shop Does not exist')
+    }
 
-    if (shopReview) {
-        res.status(200).json(shopReview)
+    // access the review
+
+    const myReview = await shopReviewModel.findOne({ userId, shopId })
+    
+    if (myReview) {
+        res.status(200).json(myReview)
     }
     else {
         res.status(404)
-        throw new Error('Review Not Found')
+        throw new Error("No Review Found")
     }
-
-})
-
-const deleteShopReviewById = asyncHandler(async (req, res) => {
-    const { id } = req.params
-
-    // access the shop id of review
-    const { shopId } = await shopReviewModel.findById(id)
-    // update the shop review
-    const reviewStatus = netReview("shop", shopId)
-    if (!reviewStatus) {
-        res.status(400)
-        throw new Error('Review Update Failed')
-    }
-
-    // delete review from db
-    await shopReviewModel.findByIdAndDelete(id)
-
-    // validate the delete
-    const deletedShopReview = await shopReviewModel.findById(id)
-    if (!deletedShopReview) {
-        res.status(200).json(id)
-    }
-    else {
-        res.status(400)
-        throw new Error('Delete Failed')
-    }
-
+    
 })
 
 /// Beautician Section
@@ -280,7 +249,7 @@ const getBeauticianReviews = asyncHandler(async (req, res) => {
 
     const { id } = req.params
     // access all reviews for given beautician id
-    const reviews = await beauticianReviewModel.find({ beauticianId: id })
+    const reviews = await beauticianReviewModel.find({ beauticianId: id }).sort({ updatedAt: 'desc' })
 
     // existence of review
     if (reviews.length !== 0) {
@@ -298,7 +267,7 @@ const getShopReviews = asyncHandler(async (req, res) => {
 
     const { id } = req.params
     // access all reviews for given shop id
-    const reviews = await shopReviewModel.find({ shopId: id })
+    const reviews = await shopReviewModel.find({ shopId: id }).sort({ updatedAt: 'desc' })
 
     // existence of review
     if (reviews.length !== 0) {
@@ -318,12 +287,10 @@ module.exports = {
     reviewHome,
     addBeauticianReview,
     updateBeauticianReviewById,
-    getBeauticianReviewById,
-    deleteBeauticianReviewById,
     addShopReview,
     updateShopReviewById,
-    getShopReviewById,
-    deleteShopReviewById,
+    getMyShopreview,
+    getMyBeauticianReview,
     getBeauticianReviews,
     getShopReviews
 }

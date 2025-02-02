@@ -15,7 +15,9 @@ const netReview = async( reviewType,Id ) => {
     }
     const sumRating = allRatings.reduce((n, { rating }) => n + rating, 0)
     
-    const netRating = sumRating / allRatings.length
+    const netRatingRound = sumRating / allRatings.length
+    const netRating = netRatingRound.toFixed(1)
+    
     
     if (reviewType === "beautician") {
         await beauticianProfileModel.findByIdAndUpdate(Id, { clientRating: netRating })
